@@ -1,0 +1,54 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+
+# define tasks here
+get_current_job (){
+  ls -lhtr python | tail -n 1 | awk '{print $NF}'
+}
+
+test (){
+  current=$(get_current_job)
+  file_prefix=`echo $current | sed "s/-/_/g"`
+  python python/$current/${file_prefix}_test.py
+}
+
+submit () {
+  current=$(get_current_job)
+  file_prefix=`echo $current | sed "s/-/_/g"`
+  exercism submit python/$current/${file_prefix}.py
+}
+
+fetch () {
+  exercism fetch
+}
+
+clean (){
+  echo "do clean here"
+}
+
+# main start here
+command=${1:-""}
+
+if [ -n "$(type -t $command)" ] && [ "$(type -t $command)" = function ]
+then
+  eval $command
+  exit $?
+fi
+
+case "$command" in
+  f)
+    fetch
+  ;;
+  s)
+    submit
+  ;;
+  t)
+    test
+  ;;
+  *)
+    clean
+esac
