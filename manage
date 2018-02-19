@@ -24,6 +24,16 @@ submit () {
   git add "python/$(get_current_job)"
   git commit -vs
   exercism fetch
+  current=$(get_current_job)
+  file_prefix=`echo $current | sed "s/-/_/g"`
+  echo -e "#!/usr/bin/env python\n#encoding=utf8\n\n" > /tmp/exercism.tmp
+  cat python/$current/${file_prefix}.py >> /tmp/exercism.tmp
+  mv /tmp/exercism.tmp python/$current/${file_prefix}.py
+}
+
+_less () {
+  current=$(get_current_job)
+  less python/$current/README.md
 }
 
 clean (){
@@ -40,6 +50,9 @@ then
 fi
 
 case "$command" in
+  l)
+    _less
+  ;;
   s)
     submit
   ;;
