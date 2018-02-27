@@ -1,36 +1,9 @@
 #!/usr/bin/env python
 #encoding=utf8
 from copy import deepcopy
-from string import ascii_lowercase
 
 
 def encode(message, rails):
-    message = "".join(ch for ch in message if ch.isalnum())
-    period = 2 * (rails - 1)
-    periods = len(message) // period
-    if len(message) % period:
-        remains = message[-(len(message) % period):]
-    else:
-        remains = None
-    encoded = ""
-    for i in range(rails):
-        if i == 0 or (i == rails - 1):
-            # a single ch in a period should be added to the encoded message
-            encoded += ''.join(message[period * j + i] for j in range(periods))
-            if remains and len(remains) > i:
-                encoded += remains[i]
-        else:
-            encoded += ''.join([
-                message[period * j + i] + message[period * (j + 1) - i]
-                for j in range(periods)
-            ])
-            if remains and len(remains) > i:
-                encoded += remains[i]
-                if len(remains) > period - i:
-                    encoded += remains[period - i]
-    return encoded
-
-def encode_visual(message, rails):
     message = "".join(ch for ch in message if ch.isalnum())
     fence = []
     for i in range(rails):
@@ -43,10 +16,32 @@ def encode_visual(message, rails):
     return ''.join(''.join(ch) for row in fence for ch in row if ch)
 
 def decode(message, rails):
-    pass
+    fence = {}
+    length = len(message)
+    period = 2 * (rails - 1)
+    remains = message[-(length % period):] if length % period else None
+    last = 0
 
+    for i in range(rails):
+        if i == 0 or (i == rails - 1):
+            count = length // period
+            if remains and len(remains) > i:
+                count += 1
+        else:
+            count = (length // period) * 2
+            if remains and len(remains) > i:
+                count += 1
+                if len(remains) > period - i:
+                    count += 1
+        fence[i] = message[last:last+count]
+        last += count
 
-"""
-x 0 x 0 x 0 x 0 x 0 x 0 x 0 x 0 x 0
-0 y 0 y 0 y 0 y 0 y 0 y 0 y 0 y 0 y
-"""
+    cycle_ = list(range(rails)) + list(reversed(range(rails)))[1:-1]
+    cycles = cycle_ * (length // period + 1)
+    decoded = ""
+    for i in range(length):
+        index = cycles[i]
+        decoded += fence[index][0]
+        fence[index] = fence[index][1:]
+
+    return decoded
