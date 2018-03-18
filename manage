@@ -40,6 +40,12 @@ _less () {
   less python/$current/README.md
 }
 
+cheat () {
+  current=$(get_current_job)
+  file_prefix=`echo $current | sed "s/-/_/g"`
+  cat python/$current/${file_prefix}_test.py
+}
+
 clean (){
   echo "do clean here"
 }
