@@ -22,7 +22,7 @@ init () {
 test (){
   current=$(get_current_job)
   file_prefix=`echo $current | sed "s/-/_/g"`
-  python python/$current/${file_prefix}_test.py
+  python2 python/$current/${file_prefix}_test.py
   python3 python/$current/${file_prefix}_test.py
 }
 
